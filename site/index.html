@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoliWatch — Rolimons Limited Tracker</title>
+  <meta name="description" content="Track Roblox limited item prices from Rolimons. Get instant Discord alerts whenever a limited's value or RAP changes." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <span class="logo">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <circle cx="14" cy="14" r="14" fill="#5865F2"/>
+          <path d="M8 18.5l4-9 2 4.5 2-3 2 7.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        RoliWatch
+      </span>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#commands">Commands</a>
+        <a href="#setup">Setup</a>
+        <a href="https://discord.com/oauth2/authorize?client_id=1513200969612263634&scope=bot+applications.commands&permissions=2147502080" class="btn btn-sm" target="_blank" rel="noopener">Add to Discord</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="badge">Free &amp; Open Source</div>
+      <h1>Never miss a<br/><span class="gradient">price swing</span> again.</h1>
+      <p class="hero-sub">
+        RoliWatch tracks your Roblox limiteds on Rolimons and fires a Discord alert the moment a value or RAP changes — checked every <strong>2 minutes</strong>.
+      </p>
+      <div class="hero-actions">
+        <a href="https://discord.com/oauth2/authorize?client_id=1513200969612263634&scope=bot+applications.commands&permissions=2147502080" class="btn btn-primary" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 71 55" fill="none" aria-hidden="true"><g clip-path="url(#a)"><path d="M60.1 4.9A58.6 58.6 0 0 0 45.5.4a40.7 40.7 0 0 0-1.8 3.7 54.2 54.2 0 0 0-16.3 0A38.7 38.7 0 0 0 25.6.4 58.5 58.5 0 0 0 11 5C1.6 19.5-1 33.6.3 47.5a59 59 0 0 0 18 9.1 44.6 44.6 0 0 0 3.8-6.2 38.4 38.4 0 0 1-6-2.9l1.5-1.1a42 42 0 0 0 35.9 0l1.5 1.1a38.5 38.5 0 0 1-6 2.9 44.4 44.4 0 0 0 3.8 6.2 58.8 58.8 0 0 0 18-9A54.2 54.2 0 0 0 60.1 4.9ZM23.7 39c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Zm23.6 0c-3.5 0-6.4-3.2-6.4-7.2s2.8-7.2 6.4-7.2c3.5 0 6.4 3.2 6.3 7.2 0 4-2.8 7.2-6.3 7.2Z" fill="#fff"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h71v55H0z"/></clipPath></defs></svg>
+          Add to Discord
+        </a>
+        <a href="https://github.com/YOUR_USERNAME/roliwatch" class="btn btn-ghost" target="_blank" rel="noopener">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.38.6.1.82-.26.82-.58v-2.03c-3.34.72-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.3.76-1.6-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 3-.4c1.02 0 2.04.13 3 .4 2.28-1.55 3.29-1.23 3.29-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.21.69.82.57C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          View Source
+        </a>
+      </div>
+
+      <div class="alert-preview">
+        <div class="alert-card up">
+          <div class="alert-icon">📈</div>
+          <div class="alert-body">
+            <div class="alert-name">Clockwork Headphones</div>
+            <div class="alert-row"><span class="label">Value</span> <span class="old">R$45,000</span> → <strong class="new-up">R$52,000 <em>+15.6%</em></strong></div>
+            <div class="alert-row"><span class="label">RAP</span> <span class="old">R$38,200</span> → <strong class="new-up">R$41,000 <em>+7.3%</em></strong></div>
+            <div class="alert-row"><span class="label">Trend</span> <span class="trend-up">▲ Projected</span></div>
+          </div>
+        </div>
+        <div class="alert-card down">
+          <div class="alert-icon">📉</div>
+          <div class="alert-body">
+            <div class="alert-name">Valkyrie Helm</div>
+            <div class="alert-row"><span class="label">Value</span> <span class="old">R$120,000</span> → <strong class="new-down">R$95,000 <em>-20.8%</em></strong></div>
+            <div class="alert-row"><span class="label">RAP</span> <span class="old">R$110,500</span> → <strong class="new-down">R$98,000 <em>-11.3%</em></strong></div>
+            <div class="alert-row"><span class="label">Trend</span> <span class="trend-down">▼ UnProjected</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- FEATURES -->
+  <section id="features" class="features">
+    <div class="section-inner">
+      <h2>Everything you need to stay ahead</h2>
+      <p class="section-sub">Built for traders who can't afford to check Rolimons every five minutes.</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>2-Minute Polling</h3>
+          <p>Prices are checked every 2 minutes using Rolimons' item API — fast enough to catch market moves early.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Instant Alerts</h3>
+          <p>Rich embeds show the old price, new price, percentage change, and Rolimons trend — all in one glance.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>Track Any Limited</h3>
+          <p>Add any item by its Rolimons ID. Track as many as you want per server, each in your chosen alert channel.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏷️</div>
+          <h3>Value &amp; RAP</h3>
+          <p>Alerts fire when either the projected value or recent average price (RAP) shifts, so nothing slips through.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Trend Labels</h3>
+          <p>Rolimons trend indicators (Projected, Hyped, Lowered, etc.) are included in every alert.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛠️</div>
+          <h3>Self-Hostable</h3>
+          <p>Open source and easy to run yourself. One <code>.env</code> file, one command.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMANDS -->
+  <section id="commands" class="commands">
+    <div class="section-inner">
+      <h2>Slash commands</h2>
+      <p class="section-sub">Everything lives in Discord — no dashboard needed.</p>
+      <div class="cmd-list">
+        <div class="cmd-row">
+          <div class="cmd-name"><code>/setchannel</code></div>
+          <div class="cmd-desc">Pick the channel where price alerts are posted. Requires <em>Manage Channels</em>.</div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-name"><code>/track &lt;item_id&gt;</code></div>
+          <div class="cmd-desc">Start tracking a limited. Grabs the current price snapshot as a baseline.</div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-name"><code>/untrack &lt;item_id&gt;</code></div>
+          <div class="cmd-desc">Remove an item from the tracking list.</div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-name"><code>/list</code></div>
+          <div class="cmd-desc">Show all tracked items with their last known value and RAP.</div>
+        </div>
+        <div class="cmd-row">
+          <div class="cmd-name"><code>/check</code></div>
+          <div class="cmd-desc">Manually pull current prices for every tracked item right now.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="setup" class="setup">
+    <div class="section-inner">
+      <h2>Get started in 3 steps</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h3>Add RoliWatch to your server</h3>
+            <p>Click <strong>Add to Discord</strong> and authorise the bot. It needs <em>Send Messages</em>, <em>Embed Links</em>, and <em>View Channel</em>.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h3>Set your alert channel</h3>
+            <p>Run <code>/setchannel #your-channel</code> so RoliWatch knows where to post price alerts.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h3>Track your limiteds</h3>
+            <p>Find the item ID in the Rolimons URL — e.g. <code>rolimons.com/item/<strong>1365767</strong></code> — then run <code>/track 1365767</code>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="section-inner cta-inner">
+      <h2>Start tracking for free</h2>
+      <p>Open source. No account. No dashboard. Just alerts.</p>
+      <a href="https://discord.com/oauth2/authorize?client_id=1513200969612263634&scope=bot+applications.commands&permissions=2147502080" class="btn btn-primary btn-lg" target="_blank" rel="noopener">
+        Add RoliWatch to Discord
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span class="logo">RoliWatch</span>
+      <span class="footer-note">Not affiliated with Roblox or Rolimons.</span>
+    </div>
+  </footer>
+
+</body>
+</html>
