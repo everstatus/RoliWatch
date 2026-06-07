@@ -83,6 +83,15 @@ def build_alert_embed(item: dict, old_value: int | None, old_rap: int | None) ->
     return embed
 
 
+async def safe_defer(interaction: discord.Interaction, ephemeral: bool = False) -> bool:
+    """Defer an interaction, returning False if it already expired."""
+    try:
+        await interaction.response.defer(ephemeral=ephemeral)
+        return True
+    except (discord.NotFound, discord.HTTPException):
+        return False
+
+
 # ─── Price-check loop ────────────────────────────────────────────────────────
 @tasks.loop(seconds=CHECK_INTERVAL)
 async def price_check():
@@ -90,13 +99,13 @@ async def price_check():
     if not rows:
         return
 
-    # Batch-fetch everything once to avoid hammering Rolimons
     try:
         all_items = await rolimons.fetch_all_items()
     except Exception as e:
-        print(f"[RoliWatch] Rolimons fetch failed: {e}")
+        print(f"[RoliWatch] ⚠  Rolimons fetch failed: {e}")
         return
 
+    alerts_sent = 0
     for row in rows:
         item_id  = row["item_id"]
         guild_id = row["guild_id"]
@@ -112,7 +121,6 @@ async def price_check():
         price_changed = (old_value is not None and new_value != old_value) or \
                         (old_rap   is not None and new_rap   != old_rap)
 
-        # Always update stored prices
         db.update_item_prices(item_id, guild_id, new_value, new_rap)
 
         if not price_changed:
@@ -137,23 +145,33 @@ async def price_check():
         embed = build_alert_embed(item, old_value, old_rap)
         try:
             await channel.send(embed=embed)
+            alerts_sent += 1
+            print(f"[RoliWatch] 🔔 Alert sent — {item['name']} (guild {guild_id})")
         except discord.Forbidden:
-            print(f"[RoliWatch] Missing send perms in channel {channel_id}")
+            print(f"[RoliWatch] ⚠  Missing send perms in channel {channel_id}")
+
+    if alerts_sent == 0:
+        print(f"[RoliWatch] ✓  Price check done — no changes across {len(rows)} item(s)")
 
 
 # ─── Slash commands ──────────────────────────────────────────────────────────
 @tree.command(name="setchannel", description="Set the channel where price alerts are sent")
 @app_commands.checks.has_permissions(manage_channels=True)
 async def cmd_setchannel(interaction: discord.Interaction, channel: discord.TextChannel):
-    db.set_alert_channel(interaction.guild_id, channel.id)
-    await interaction.response.send_message(
-        f"✅ Alerts will be sent to {channel.mention}.", ephemeral=True
-    )
+    try:
+        db.set_alert_channel(interaction.guild_id, channel.id)
+        await interaction.response.send_message(
+            f"✅ Alerts will be sent to {channel.mention}.", ephemeral=True
+        )
+        print(f"[RoliWatch] ✓  Alert channel set to #{channel.name} (guild {interaction.guild_id})")
+    except (discord.NotFound, discord.HTTPException):
+        pass
 
 
 @tree.command(name="track", description="Start tracking a Rolimons limited by item ID")
 async def cmd_track(interaction: discord.Interaction, item_id: int):
-    await interaction.response.defer(ephemeral=True)
+    if not await safe_defer(interaction, ephemeral=True):
+        return
 
     item = await rolimons.fetch_item(item_id)
     if item is None:
@@ -173,20 +191,27 @@ async def cmd_track(interaction: discord.Interaction, item_id: int):
     embed.add_field(name="Trend", value=TREND_LABELS.get(item["trend"], "Unknown"), inline=True)
     embed.set_footer(text=f"Item ID: {item_id}")
     await interaction.followup.send(embed=embed)
+    print(f"[RoliWatch] + Tracking {item['name']} ({item_id}) for guild {interaction.guild_id}")
 
 
 @tree.command(name="untrack", description="Stop tracking a limited item")
 async def cmd_untrack(interaction: discord.Interaction, item_id: int):
-    removed = db.remove_tracked_item(item_id, interaction.guild_id)
-    if removed:
-        await interaction.response.send_message(f"✅ Stopped tracking item `{item_id}`.", ephemeral=True)
-    else:
-        await interaction.response.send_message(f"❌ Item `{item_id}` is not being tracked.", ephemeral=True)
+    try:
+        removed = db.remove_tracked_item(item_id, interaction.guild_id)
+        if removed:
+            await interaction.response.send_message(f"✅ Stopped tracking item `{item_id}`.", ephemeral=True)
+            print(f"[RoliWatch] - Untracked item {item_id} for guild {interaction.guild_id}")
+        else:
+            await interaction.response.send_message(f"❌ Item `{item_id}` is not being tracked.", ephemeral=True)
+    except (discord.NotFound, discord.HTTPException):
+        pass
 
 
 @tree.command(name="list", description="Show all currently tracked items")
 async def cmd_list(interaction: discord.Interaction):
-    await interaction.response.defer(ephemeral=True)
+    if not await safe_defer(interaction, ephemeral=True):
+        return
+
     rows = db.get_tracked_items(interaction.guild_id)
     if not rows:
         await interaction.followup.send("No items are being tracked. Use `/track <item_id>` to add one.")
@@ -214,7 +239,9 @@ async def cmd_list(interaction: discord.Interaction):
 
 @tree.command(name="check", description="Manually fetch current prices for all tracked items")
 async def cmd_check(interaction: discord.Interaction):
-    await interaction.response.defer()
+    if not await safe_defer(interaction):
+        return
+
     rows = db.get_tracked_items(interaction.guild_id)
     if not rows:
         await interaction.followup.send("No items tracked. Use `/track <item_id>` first.")
@@ -252,23 +279,37 @@ BOT_DESCRIPTION = (
     "Add items by ID, set a dedicated alert channel, and never miss a price swing."
 )
 
+BANNER = """
+╔══════════════════════════════════════╗
+║           R O L I W A T C H          ║
+║     Rolimons Limited Price Bot       ║
+╚══════════════════════════════════════╝"""
+
 
 @client.event
 async def on_ready():
     db.init_db()
     await tree.sync()
-    await client.application.edit(description=BOT_DESCRIPTION)
+    try:
+        await client.application.edit(description=BOT_DESCRIPTION)
+    except Exception:
+        pass
     price_check.start()
-    print(f"[RoliWatch] Logged in as {client.user} | Watching every {CHECK_INTERVAL}s")
+    print(BANNER)
+    print(f"  Bot      : {client.user}")
+    print(f"  Guilds   : {len(client.guilds)}")
+    print(f"  Interval : every {CHECK_INTERVAL}s")
+    print(f"  Status   : online ✓")
+    print("─" * 40)
 
 
 @client.event
 async def on_guild_join(guild: discord.Guild):
-    print(f"[RoliWatch] Joined guild: {guild.name} ({guild.id})")
+    print(f"[RoliWatch] + Joined guild: {guild.name} ({guild.id})")
 
 
 # ─── Entry point ─────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     if not TOKEN:
         raise RuntimeError("DISCORD_TOKEN is not set. Copy .env.example to .env and fill it in.")
-    client.run(TOKEN)
+    client.run(TOKEN, log_handler=None)
